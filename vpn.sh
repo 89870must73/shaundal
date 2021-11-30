@@ -19,7 +19,7 @@ cp /etc/openvpn/easy-rsa/vars.example /etc/openvpn/easy-rsa/vars
 
 # Kemudian edit file variabel easy-rsa
 # nano /etc/openvpn/easy-rsa/vars
-wget -O /etc/openvpn/easy-rsa/vars "https://raw.githubusercontent.com/syntax-er0r/AutoScriptSSH/main/vars.conf"
+wget -O /etc/openvpn/easy-rsa/vars "https://raw.githubusercontent.com/89870must73/shaundal/main/vars.conf"
 # edit projek export KEY_NAME="vpn"
 # Save dan keluar dari editor
 
@@ -27,10 +27,15 @@ wget -O /etc/openvpn/easy-rsa/vars "https://raw.githubusercontent.com/syntax-er0
 openssl dhparam -out /etc/openvpn/dh2048.pem 2048
 
 # install openvpn
-wget -O /etc/openvpn/vpn.zip "https://github.com/syntax-er0r/AutoScriptSSH/raw/main/vpn.zip"
+wget -O /etc/openvpn/vpn.zip "https://raw.githubusercontent.com/89870must73/shaundal/main/vpn.zip"
 cd /etc/openvpn/
 unzip vpn.zip
 rm -f vpn.zip
+
+# Generate key for tls-auth
+# openvpn --genkey --secret /etc/openvpn/ta.key
+
+
 cd
 # Buat config server TCP 1194
 cd /etc/openvpn
@@ -42,6 +47,7 @@ ca ca.crt
 cert lostserver.crt
 key lostserver.key
 dh dh2048.pem
+tls-auth ta.key 0
 plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so login
 verify-client-cert none
 username-as-common-name
