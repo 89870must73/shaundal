@@ -9,15 +9,13 @@ echo ""
 echo -e "\033[1;34m INSTALANDO...\033[1;32m"
 export DEBIAN_FRONTEND=noninteractive
 OS=`uname -m`;
+# initialisasi var
+export DEBIAN_FRONTEND=noninteractive
+OS=`uname -m`;
 MYIP=$(wget -qO- ipv4.icanhazip.com);
 MYIP2="s/xxxxxxxxx/$MYIP/g";
-
-# update
-apt-get update; apt-get -y upgrade;
-
 # OpenVPN Ports
 OpenVPN_TCP_Port='1103'
-OpenVPN_TCP1_Port='1101'
 OpenVPN_UDP_Port='53'
 
 # Yahayuk
@@ -29,7 +27,7 @@ Squid_Port2='3128'
 Squid_Port3='60000'
 
 # OpenVPN Config Download Port
-OvpnDownload_Port='80' # Before changing this value, please read this document. It contains all unsafe ports for Google Chrome Browser, please read from line #23 to line #89: https://chromium.googlesource.com/chromium/src.git/+/refs/heads/master/net/base/port_util.cc
+OvpnDownload_Port='85' # Before changing this value, please read this document. It contains all unsafe ports for Google Chrome Browser, please read from line #23 to line #89: https://chromium.googlesource.com/chromium/src.git/+/refs/heads/master/net/base/port_util.cc
 
 
 # set time GMT +7
@@ -112,41 +110,6 @@ verify-client-cert none
 username-as-common-name
 plugin /etc/openvpn/plugins/openvpn-plugin-auth-pam.so login
 myOpenVPNconf
-
- # Creating server.conf, ca.crt, server.crt and server.key
- cat <<'myOpenVPNconf3' > /etc/openvpn/server_tcp1.conf
-# OpenVPN TCP
-port OVPNTCP
-proto tcp
-dev tun
-dev-type tun
-sndbuf 0
-rcvbuf 0
-ca /etc/openvpn/ca.crt
-cert /etc/openvpn/server.crt
-key /etc/openvpn/server.key
-dh /etc/openvpn/dh2048.pem
-# tls-auth /etc/openvpn/ta.key 0
-topology subnet
-server 10.9.0.0 255.255.255.0
-ifconfig-pool-persist ipp.txt
-push "redirect-gateway def1 bypass-dhcp"
-push "dhcp-option DNS 8.8.8.8"
-push "dhcp-option DNS 8.8.4.4"
-keepalive 10 120
-cipher AES-256-CBC
-auth SHA256
-comp-lzo
-user nobody
-group nogroup
-persist-tun
-status openvpn-status.log
-verb 2
-mute 3
-verify-client-cert none
-username-as-common-name
-plugin /etc/openvpn/plugins/openvpn-plugin-auth-pam.so login
-myOpenVPNconf3
 
 cat <<'myOpenVPNconf2' > /etc/openvpn/server_udp.conf
 # OpenVPN UDP
@@ -402,7 +365,6 @@ NUovpn
 
  # setting openvpn server port
 sed -i "s|OVPNTCP|$OpenVPN_TCP_Port|g" /etc/openvpn/server_tcp.conf
-sed -i "s|OVPNTCP|$OpenVPN_TCP_Port|g" /etc/openvpn/server_tcp1.conf
 sed -i "s|OVPNUDP|$OpenVPN_UDP_Port|g" /etc/openvpn/server_udp.conf
  
  
@@ -414,8 +376,6 @@ rm -f plugin.tgz
 #
 systemctl start openvpn@server_tcp
 systemctl enable openvpn@server_tcp
-systemctl start openvpn@server_tcp1
-systemctl enable openvpn@server_tcp1
 systemctl start openvpn@server_udp
 systemctl enable openvpn@server_udp
 sysctl -w net.ipv4.ip_forward=1
@@ -595,8 +555,6 @@ mkdir -p /var/www/openvpn
 cat <<EOF15> /var/www/openvpn/tcp.ovpn
 # Mac Quan Inc
 # Thanks for using this script, Enjoy Highspeed OpenVPN Service
-
-
 client
 dev tun
 proto tcp
@@ -642,62 +600,9 @@ $(cat /etc/openvpn/ta.key)
 </tls-auth>
 EOF15
 
-cat <<EOF22> /var/www/openvpn/tcp1.ovpn
-# Mac Quan Inc
-# Thanks for using this script, Enjoy Highspeed OpenVPN Service
-
-
-client
-dev tun
-proto tcp
-setenv FRIENDLY_NAME "Mac Quan Inc - VPN Proxy"
-remote $MYIP $OpenVPN_TCP1_Port
-http-proxy $MYIP $Squid_Port2
-http-proxy-retry
-resolv-retry infinite
-route-method exe
-nobind
-persist-key
-persist-tun
-comp-lzo
-cipher AES-256-CBC
-auth SHA256
-push "redirect-gateway def1 bypass-dhcp"
-verb 3
-push-peer-info
-ping 10
-ping-restart 60
-hand-window 70
-server-poll-timeout 4
-reneg-sec 2592000
-sndbuf 0
-rcvbuf 0
-remote-cert-tls server
-key-direction 1
-<auth-user-pass>
-sam
-sam
-</auth-user-pass>
-<ca>
-$(cat /etc/openvpn/ca.crt)
-</ca>
-<cert>
-$(cat /etc/openvpn/server.crt)
-</cert>
-<key>
-$(cat /etc/openvpn/server.key)
-</key>
-<tls-auth>
-$(cat /etc/openvpn/ta.key)
-</tls-auth>
-EOF22
-
-
 cat <<EOF16> /var/www/openvpn/sun-tutcp.ovpn
 # Mac Quan Inc
 # Thanks for using this script, Enjoy Highspeed OpenVPN Service
-
-
 client
 dev tun
 proto tcp
@@ -741,8 +646,6 @@ EOF16
 cat <<EOF162> /var/www/openvpn/udp.ovpn
 # Mac Quan Inc
 # Thanks for using this script, Enjoy Highspeed OpenVPN Service
-
-
 client
 dev tun
 proto udp
@@ -783,8 +686,6 @@ EOF162
 cat <<EOF17> /var/www/openvpn/ssl.ovpn
 # Mac Quan Inc
 # Thanks for using this script, Enjoy Highspeed OpenVPN Service
-
-
 client 
 dev tun
 proto tcp
@@ -832,8 +733,6 @@ EOF17
 cat <<EOF152> /var/www/openvpn/gtmwnp.ovpn
 # Mac Quan Inc
 # Thanks for using this script, Enjoy Highspeed OpenVPN Service
-
-
 client
 dev tun
 proto tcp-client
@@ -954,38 +853,35 @@ sed -i 's/DROPBEAR_EXTRA_ARGS=/DROPBEAR_EXTRA_ARGS="-p 109 -p 110 -p 80"/g' /etc
 echo "/bin/false" >> /etc/shells
 /etc/init.d/dropbear restart
 
-# install stunnel
-apt-get install stunnel4 -y
-cat > /etc/stunnel/stunnel.conf <<-END
-cert = /etc/stunnel/stunnel.pem
-client = no
-socket = a:SO_REUSEADDR=1
-socket = l:TCP_NODELAY=1
-socket = r:TCP_NODELAY=1
+# install sslh
+apt-get -y install sslh
+echo ' 
+RUN=yes
+DAEMON=/usr/sbin/sslh
+DAEMON_OPTS="-u sslh -p 0.0.0.0:443 --ssh 127.0.0.1:22 --openvpn 127.0.0.1:587 --openvpn 127.0.0.1:1194 -P /var/run/sslh/sslh.pid" ' > /etc/default/sslh
+echo '
+iptables -t mangle -N SSLH
+iptables -t mangle -A OUTPUT --protocol tcp --out-interface eth0 --sport 22 --jump SSLH
+iptables -t mangle -A OUTPUT --protocol tcp --out-interface eth0 --sport 143 --jump SSLH
+iptables -t mangle -A OUTPUT --protocol tcp --out-interface eth0 --sport 443 --jump SSLH
+iptables -t mangle -A OUTPUT --protocol tcp --out-interface eth0 --sport 587 --jump SSLH
+iptables -t mangle -A OUTPUT --protocol tcp --out-interface eth0 --sport 1194 --jump SSLH
+iptables -t mangle -A SSLH --jump MARK --set-mark 0x1
+iptables -t mangle -A SSLH --jump ACCEPT ' >> /etc/rc.local
+service sslh start
 
-[dropbear]
-accept = 443
-connect = 127.0.0.1:442
-
-[openvpn]
-accept = 990
-connect = 127.0.0.1:1103
-
-END
-
-# make a certificate
-openssl genrsa -out key.pem 2048
-openssl req -new -x509 -key key.pem -out cert.pem -days 1095 \
--subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
-cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
-
-# configure stunnel
+# install stunnel4
+apt-get -y install stunnel4
+wget -O /etc/stunnel/stunnel.pem "https://raw.githubusercontent.com/redeviver/stunnel4/master/stunnel.pem"
+wget -O /etc/stunnel/stunnel.conf "https://raw.githubusercontent.com/redeviver/stunnel4/master/stunnel.conf"
+sed -i $MYIP2 /etc/stunnel/stunnel.conf
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-cd /etc/stunnel/
-wget -O /etc/stunnel/ssl.conf "https://raw.githubusercontent.com/azalea910512/kia/main/ssl/ssl.conf"
-sed -i $MYIP2 /etc/stunnel/ssl.conf;
-cp ssl.conf /home/vps/public_html/
-cd
+service stunnel4 restart
+iptables -A INPUT -p tcp --dport 1103 -j ACCEPT
+iptables -A INPUT -p tcp --dport 943 -j ACCEPT
+iptables -A INPUT -p tcp --dport 993 -j ACCEPT
+iptables -A INPUT -p tcp --dport 8888 -j ACCEPT
+iptables-save > /etc/iptables_set.conf
 
 # hapus
 rm -rf /etc/nginx/conf.d/vps.conf
