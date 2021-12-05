@@ -27,28 +27,6 @@ chvar CPASS "Provide a password for downloading the client configuration." "Set 
 chvar OWNER "Your name as Owner of this server." "Set Owner"
 MYIP=$(wget -qO- ipv4.icanhazip.com);rpstat='';shre='#http_access'
 [[ $shr =~ N|n ]] && shre='http_access' && rpstat=' not'
-# UPDATE SOURCE LIST
-OPT='-o Acquire::Check-Valid-Until=false -yq -o DPkg::Options::=--force-confdef -o DPkg::Options::=--force-confnew --allow-unauthenticated'
-# ADD PHP 5.6 SOURCE
-sed -i 's/jessie/stretch/g' /etc/apt/sources.list
-sed -i 's/xenial/bionic/g' /etc/apt/sources.list
-apt-get update
-apt-get install $OPT apt-transport-https software-properties-common
-# INSTALL REQUIREMENTS
-if [[ `lsb_release -si` = Debian ]];then
-	wget https://packages.sury.org/php/apt.gpg -qO- | apt-key add -
-	echo "deb https://packages.sury.org/php/ `lsb_release -sc` main" > /etc/apt/sources.list.d/php5.list
-else
-	add-apt-repository -y ppa:ondrej/php; fi
-apt update
-yes | apt $OPT dist-upgrade
-if [[ `lsb_release -sr` =~ 9.|18. ]]; then
-	apt remove --purge apache* $OPT
-	apt remove --purge php7* $OPT
-	apt autoremove $OPT
-	apt autoclean $OPT;fi
-yes | apt $OPT upgrade
-
 iptables -F
 iptables -X
 iptables -F -t nat
