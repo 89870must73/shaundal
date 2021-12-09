@@ -114,6 +114,7 @@ cd /etc/openvpn/easy-rsa/
 	./easyrsa gen-dh
 	cp pki/dh.pem /etc/openvpn/
 cd ~/openvpndeb/
+openvpn --genkey --secret /etc/openvpn/easy-rsa/pki/private/ta.key
 }
 
 function serverconf () {
@@ -124,6 +125,7 @@ ca ca.crt
 cert server.crt
 key server.key
 dh dh.pem
+tls-auth ta.key 0
 verify-client-cert none
 username-as-common-name
 plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so login
@@ -234,6 +236,9 @@ echo '</cert>' >> /var/www/html/client.ovpn
 echo '<key>' >> /var/www/html/client.ovpn
 cat /etc/openvpn/server.key >> /var/www/html/client.ovpn
 echo '</key>' >> /var/www/html/client.ovpn
+echo '<tls-auth>' >> /var/www/html/client.ovpn
+cat /etc/openvpn/easy-rsa/pki/private/ta.key >> /var/www/html/client.ovpn
+echo '</tls-auth>' >> /var/www/html/client.ovpn
 }
 
 function stunconf () {
