@@ -1,5 +1,16 @@
 #!/bin/bash
 #OpenVPN server installer for Debian 9
+
+# company name details
+country=MY
+state=MY
+locality=Malaysia
+organization=Personal
+organizationalunit=Personal
+commonname=RangersVPN
+email=rangersvpn@gmail.com
+
+
 function rootako () {
 	if [ "$EUID" -ne 0 ]; then
 		return 1
@@ -125,7 +136,7 @@ ca ca.crt
 cert server.crt
 key server.key
 dh dh.pem
-tls-auth ta.key 0
+# tls-auth ta.key 0
 verify-client-cert none
 username-as-common-name
 plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so login
