@@ -548,10 +548,10 @@ fi
  systemctl restart openvpn@server_udp
 
 # Creating our root directory for all of our .ovpn configs
- rm -rf /var/www/openvpn
- mkdir -p /var/www/openvpn
+ rm -rf /var/www/html
+ mkdir -p /var/www/html
 
-cat <<EOF15> /var/www/openvpn/tcp.ovpn
+cat <<EOF15> /var/www/html/tcp.ovpn
 # Modded by Gakod keningau
 client
 dev tun
