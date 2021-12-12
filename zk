@@ -498,15 +498,14 @@ webminEOF
 screen -S webmininstall -dm bash -c "bash /tmp/install-webmin.bash && rm -f /tmp/install-webmin.bash"
 }
 
-function ConfigOpenVPN(){
-echo -e "[\e[32mInfo\e[0m] Configuring OpenVPN server.."
-if [[ ! -e /etc/openvpn ]]; then
- mkdir -p /etc/openvpn
- else
+function InsOpenVPN(){
+ # Checking if openvpn folder is accidentally deleted or purged
+ if [[ ! -e /etc/openvpn ]]; then
+  mkdir -p /etc/openvpn
+ fi
+
+ # Removing all existing openvpn server files
  rm -rf /etc/openvpn/*
-fi
-mkdir -p /etc/openvpn/server
-mkdir -p /etc/openvpn/client
 
 cat <<'EOFovpn1' > /etc/openvpn/server/server_tcp.conf
 port 1194
