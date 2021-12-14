@@ -1,0 +1,257 @@
+#!/bin/bash
+if [ ! "$BASH"]
+then
+echo "This script was made to work with bash
+Restarting the Script using BASH in 3 seconds..."
+sleep 3
+bash $0 $@
+exit $?
+fi
+
+menu="\033[41;1;37m"
+DefaultColor="\033[0m"
+black="\033[0;30m"
+red="\033[0;31m"
+green="\033[0;32m"
+brown="\033[0.33m"
+blue="\033[0.34m"
+purple="\033[0.35m"
+cyan="\033[0.36m"
+Light gray="\033[0.37m"
+blackGrey="\033[1;30m"
+Light red="\033[1;31m"
+Light green="\033[1;32m"
+yellow="\033[1;33m"
+Light blue="\033[1;34m"
+purpleClaro="\033[1;35m"
+Light cyan="\033[1;36m"
+white="\033[1;37m"
+end="\033[0m"
+##
+eth=$(ifconfig | grep -v inet6 | grep -v lo | grep -v 127.0.0.1 | grep "encap:Ethernet" | awk '{print $1}')
+##
+#automatic identification of the ip
+AIP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0 -9]{1,3}' | grep -o -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} \.[0-9]{1,3}' | head -1)
+if [[ "$AIP" = "" ]]; then
+ AIP=$(wget -qO- ipv4.icanhazip.com)
+fi
+##DOOR CHECK##
+if [ -e /etc/default/dropbear ]; then
+variaveldaport=$(cat /etc/default/dropbear |egrep -o "80" |wc -l)
+ if [ "$variabledaport" = "0" ]; then
+spt="80"
+else
+echo $((($RANDOM %20) + 81)) > /tmp/spt
+spt=$(cat /tmp/spt)
+rm -rf /tmp/spt
+ fi
+variaveldaport2=$(cat /etc/default/dropbear |egrep -o "8080" |wc -l)
+ if [ "$variabledaport2" = "0" ]; then
+spt2="8080"
+else
+echo $((($RANDOM %20) + 8081)) > /tmp/spt
+spt2=$(cat /tmp/spt)
+rm -rf /tmp/spt
+ fi
+variaveldaport3=$(cat /etc/default/dropbear |egrep -o "8799" |wc -l)
+ if [ "$variabledaport3" = "0" ]; then
+spt3="8799"
+else
+echo $((($RANDOM %20) + 8800)) > /tmp/spt
+spt3=$(cat /tmp/spt)
+rm -rf /tmp/spt
+ fi
+variaveldaport4=$(cat /etc/default/dropbear |egrep -o "3128" |wc -l)
+ if [ "$variabledaport4" = "0" ]; then
+spt4="3128"
+else
+echo $((($RANDOM %20) + 3129)) > /tmp/spt
+spt4=$(cat /tmp/spt)
+rm -rf /tmp/spt
+ fi
+else
+spt="60"
+spt2="8000"
+spt3="8888"
+spt4="3128"
+fi
+
+_ports="/tmp/$RANDOM"
+_ports2="/tmp/$RANDOM"
+echo "22, 143" > $_ports
+echo "$spt" > $_ports2
+echo "$spt2" >> $_ports2
+echo "$spt3" >> $_ports2
+echo "$spt4" >> $_ports2
+
+clear
+echo -e "$cyanSure
+PROXY SQUID INSTALLER
+$end"
+read -p "ENTER TO PROCEED"
+read -p "Enter your IP: " -e -i $AIP ip
+echo -e "$cyanSure
+Installing SQUID3...$end"
+clear
+apt-get update -y 1>/dev/null 2>/dev/null
+apt-get upgrade -y 1>/dev/null 2>/dev/null
+apt-get install squid3 -y 1>/dev/null 2>/dev/null
+echo -e "$light blue
+STARTING INSTALLATION...$end"
+sleep 3s
+echo -e "\033[0m"
+sleep 1s
+
+cp /etc/ssh/sshd_config /etc/ssh/sshd_back
+cat /etc/ssh/sshd_config | grep -v "Port 143" > /etc/ssh/a && mv -f /etc/ssh/a /etc/ssh/sshd_config
+
+if [[ -e /etc/squid/squid.conf ]]; then
+opt="2"
+sleep 2s
+else
+ if [[ -e /etc/squid3/squid.conf ]]; then
+opt="1"
+sleep 2s
+else
+echo -e "\033[1;36mWHICH SYSTEM ARE YOU USING?
+[1] DEBIAN
+[2] UBUNT"
+read -p "option: " opt
+  fi
+fi
+
+sleep 2s
+###PAYLOADS###
+touch /etc/payloads
+echo -e ".bookclaro.com.br/
+.clear.with.air/
+.claro.com.br/
+.clear.com.co/
+.clear.com.ec/
+.clear.com.gt/
+.clear.com.ni/
+.clear.com.pe/
+.clear.com.sv/
+.of course.cr/
+.clarocurtas.com.br/
+.claroideas.com/
+.claroideias.com.br/
+.claromusica.com/
+.clarosomdechamada.com.br/
+.clarovideo.com/
+.facebook.net/
+.facebook.com/
+.netclaro.com.br/
+.devvault.digi.com.my/
+.oimusica.com.br/
+.speedtest.net/
+.tim.com.br/
+.timanamaria.com.br/
+.vivo.com.br/
+.rdio.com/
+.compute-1.amazonaws.com/
+/portalrecarga.vivo.com.br/recarga/@r3v1v3r
+.vivo.ddivulga.com/
+portalrecarga.vivo.com.br/recarga/home" > /etc/payloads
+###FIMPAYLOADS###
+
+##SYS###DEBIAN
+if [ $opt -eq 1 ]; then
+echo "#ConfiguracaoSquiD
+acl url1 url_regex -i '"/etc/payloads"'
+acl url2 dstdomain -i 127.0.0.1
+acl url3 dstdomain -i localhost
+acl url4 dstdomain -i $ip
+always_direct allow all
+
+http_access allow url1
+http_access allow url2
+http_access allow url3
+http_access allow url4
+http_access deny all
+header_access From deny all
+header_access Via deny all
+header_access Server deny all
+
+#doors
+http_port $spt
+http_port $spt2
+http_port $spt3
+http_port $spt4
+
+visible_hostname r3v1v3r.pr0xy
+
+forwarded_for off
+pipeline_prefetch on
+" > /etc/squid3/squid.conf
+echo -e "$light blue
+SETTING...$end"
+echo -e "$cyanClaro RESTARTING SERVICES...$end"
+squid3 -k reconfigure 1>/dev/null 2>/dev/null
+service ssh restart 1>/dev/null 2>/dev/null
+service squid3 restart 1>/dev/null 2>/dev/null
+sleep 1s
+fi
+
+if [ $opt -eq 2 ]; then
+echo "#ConfiguracaoSquiD
+acl url1 url_regex -i '"/etc/payloads"'
+acl url2 dstdomain -i 127.0.0.1
+acl url3 dstdomain -i localhost
+acl url4 dstdomain -i $ip
+always_direct allow all
+
+http_access allow url1
+http_access allow url2
+http_access allow url3
+http_access allow url4
+http_access deny all
+header_access From deny all
+header_access Via deny all
+header_access Server deny all
+
+#doors
+http_port $spt
+http_port $spt2
+http_port $spt3
+http_port $spt4
+
+visible_hostname r3v1v3r.pr0xy
+
+forwarded_for off
+pipeline_prefetch on
+" > /etc/squid/squid.conf
+sleep 1s
+echo -e "$light blue
+SETTING...$end"
+echo -e "$cyanClaro RESTARTING SERVICES...$end"
+squid -k reconfigure 1>/dev/null 2>/dev/null
+service ssh restart 1>/dev/null 2>/dev/null
+service squid restart 1>/dev/null 2>/dev/null
+sleep 1s
+fi
+echo -e "\033[1;36m
+OPEN SSH RUNNING ON DOORS:"
+cat $_ports
+rm $_ports
+echo -e "\033[1;36m
+PROXY SQUID ROTATING ON DOORS"
+cat $_ports2
+rm $_ports2
+echo -e "$end"
+sleep 1s
+if [ "$eth" != "" ]; then
+echo -e "\033[1;36mApply system to improve ssh packages? Errors may occur in ssh because of this option!
+[y/n]\033[1.32m"
+read -p ":" ssh
+if [ "$ssh" = "y" ]; then
+echo -e "$green Fixed package issues in SSH...$end"
+apt-get install ethtool -y 1>/dev/null 2>/dev/null
+interface="$eth"
+ if [ "$interface" = "" ]
+then
+interface=eth0
+ fi
+ethtool -G $interface rx 999999999 tx 999999999 1>/dev/null 2>/dev/null
+ fi
+fi
