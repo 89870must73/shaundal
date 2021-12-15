@@ -668,7 +668,7 @@ $(cat /etc/openvpn/client.crt)
 $(cat /etc/openvpn/client.key)
 </key>
 <tls-auth>
-$(cat /etc/openvpn/tls-auth.key)
+$(cat /etc/openvpn/ta.key)
 </tls-auth>
 EOF152
 
