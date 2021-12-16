@@ -21,13 +21,13 @@ myNginxC
  sed -i "s|myNginx|$OvpnDownload_Port|g" /etc/nginx/conf.d/bonveio-ovpn-config.conf
  # Creating our root directory for all of our .ovpn configs
  rm -rf /var/www/openvpn
- mkdir -p /var/www/openvpn
+# mkdir -p /var/www/openvpn
  rm /var/www/openvpn/index.nginx-debian.html
  wget https://raw.githubusercontent.com/89870must73/DEB/main/index.html
  cp index.html /var/www/openvpn
  # Creating OVPN download site index.html
  # Setting template's correct name,IP address and nginx Port
- sed -i "s|MyScriptName|$MyScriptName|g" /var/www/openvpn/index.html
+# sed -i "s|MyScriptName|$MyScriptName|g" /var/www/openvpn/index.html
  sed -i "s|NGINXPORT|$OvpnDownload_Port|g" /var/www/openvpn/index.html
  sed -i "s|IP-ADDRESS|$IPADDR|g" /var/www/openvpn/index.html
  # Restarting nginx service
