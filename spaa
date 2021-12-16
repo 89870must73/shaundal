@@ -535,10 +535,14 @@ myNginxC
 
  # Setting our nginx config port for .ovpn download site
  sed -i "s|myNginx|$OvpnDownload_Port|g" /etc/nginx/conf.d/bonveio-ovpn-config.conf
+
+ # Removing Default nginx page(port 80)
+ rm -rf /etc/nginx/sites-*
+
  # Creating our root directory for all of our .ovpn configs
  rm -rf /var/www/openvpn
  mkdir -p /var/www/openvpn
-
+ rm /var/www/openvpn/index.html
 cat <<EOF152> /var/www/openvpn/tcp.ovpn
 # Credits to GakodX
 client
@@ -715,8 +719,8 @@ $(cat /etc/openvpn/ta.key)
 </tls-auth>
 EOF17
 
- wget https://raw.githubusercontent.com/89870must73/DEB/main/index.html
- cp index.html /var/www/openvpn
+wget https://raw.githubusercontent.com/89870must73/DEB/main/index.html
+cp index.html /var/www/openvpn
  
 
  # Restarting nginx service
